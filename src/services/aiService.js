@@ -1,4 +1,4 @@
-const BASE_URL = ''; // Proxied via Vite
+const BASE_URL = import.meta.env.VITE_API_URL || ''; // Use VITE_API_URL in production, fallback to proxy in development
 
 // -------------------------------------------------------
 // AI Provider Utilities
