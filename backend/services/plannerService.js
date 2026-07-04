@@ -2,7 +2,7 @@ import { generateText, isAIConfigured } from '../utils/aiClient.js';
 import { supabase, isConfigured as isSupabaseConfigured } from '../config/supabaseClient.js';
 import crypto from 'crypto';
 
-export async function generatePlan(userId, inputs, provider = 'gemini') {
+export async function generatePlan(userId, inputs, provider = 'groq') {
   const { examDate, subjects, studyHours, learningGoals } = inputs;
   let planData = {};
   

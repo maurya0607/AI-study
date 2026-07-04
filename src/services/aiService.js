@@ -14,7 +14,7 @@ export async function getAiStatus() {
 }
 
 export function getPreferredProvider() {
-  return localStorage.getItem('preferred_ai_provider') || 'gemini';
+  return localStorage.getItem('preferred_ai_provider') || 'groq';
 }
 
 export function setPreferredProvider(provider) {

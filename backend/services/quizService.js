@@ -2,7 +2,7 @@ import { generateText, isAIConfigured } from '../utils/aiClient.js';
 import { supabase, isConfigured as isSupabaseConfigured } from '../config/supabaseClient.js';
 import crypto from 'crypto';
 
-export async function generateQuiz(documentId, documentText, quizType = 'MCQ', provider = 'gemini') {
+export async function generateQuiz(documentId, documentText, quizType = 'MCQ', provider = 'groq') {
   const type = quizType.toUpperCase();
   let quizData = [];
   

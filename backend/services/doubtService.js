@@ -4,10 +4,10 @@ import crypto from 'crypto';
 
 export async function solveDoubt(userId, documentText, question, provider = 'gemini') {
   let answerContent = '';
+  let usedProvider = provider;
   
   if (isAIConfigured) {
-    try {
-      const prompt = `
+    const prompt = `
         You are an expert teaching assistant. A student has a doubt about the study material.
         
         CRITICAL INSTRUCTIONS:
@@ -25,14 +25,34 @@ export async function solveDoubt(userId, documentText, question, provider = 'gem
         Student's Question:
         "${question}"
       `;
+
+    // Try Gemini first
+    try {
+      console.log('[Doubt Solver] Trying Gemini first...');
+      answerContent = await generateText(prompt, { provider: 'gemini' });
+      usedProvider = 'gemini';
+      console.log('[Doubt Solver] ✅ Gemini responded successfully.');
+    } catch (geminiError) {
+      console.error('[Doubt Solver] ❌ Gemini failed:', geminiError.message);
       
-      answerContent = await generateText(prompt, { provider });
-    } catch (error) {
-      console.error('AI doubt solving failed:', error);
-      answerContent = "⚠️ AI Error: " + (error.message || "Something went wrong while connecting to the AI model. Please try again or check your API key / Rate Limits.");
+      // Fallback to Groq
+      try {
+        console.log('[Doubt Solver] 🔄 Falling back to Groq...');
+        answerContent = await generateText(prompt, { provider: 'groq' });
+        usedProvider = 'groq';
+        console.log('[Doubt Solver] ✅ Groq responded successfully.');
+      } catch (groqError) {
+        console.error('[Doubt Solver] ❌ Groq also failed:', groqError.message);
+        answerContent = "⚠️ AI Error: Both Gemini and Groq failed.\n\n" +
+          `**Gemini Error:** ${geminiError.message}\n\n` +
+          `**Groq Error:** ${groqError.message}\n\n` +
+          "Please check your API keys and rate limits.";
+        usedProvider = 'none';
+      }
     }
   } else {
     answerContent = getMockAnswer(question, documentText);
+    usedProvider = 'mock';
   }
 
   if (isSupabaseConfigured && userId) {
@@ -48,7 +68,7 @@ export async function solveDoubt(userId, documentText, question, provider = 'gem
         .single();
         
       if (error) throw error;
-      return data;
+      return { ...data, usedProvider };
     } catch (dbError) {
       console.warn('[Doubt DB] Could not save to database (table may not exist yet):', dbError.message);
     }
@@ -59,6 +79,7 @@ export async function solveDoubt(userId, documentText, question, provider = 'gem
     user_id: userId || crypto.randomUUID(),
     question: question,
     answer: answerContent,
+    usedProvider,
     created_at: new Date().toISOString()
   };
 }

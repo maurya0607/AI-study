@@ -2,7 +2,7 @@ import { generateText, isAIConfigured } from '../utils/aiClient.js';
 import { supabase, isConfigured as isSupabaseConfigured } from '../config/supabaseClient.js';
 import crypto from 'crypto';
 
-export async function generateFlashcards(documentId, documentText, provider = 'gemini') {
+export async function generateFlashcards(documentId, documentText, provider = 'groq') {
   let flashcardData = [];
   
   if (isAIConfigured) {

@@ -2,7 +2,7 @@ import { generateText, isAIConfigured } from '../utils/aiClient.js';
 import { supabase, isConfigured as isSupabaseConfigured } from '../config/supabaseClient.js';
 import crypto from 'crypto';
 
-export async function generateNotes(documentId, documentText, style = 'detailed', provider = 'gemini') {
+export async function generateNotes(documentId, documentText, style = 'detailed', provider = 'groq') {
   const noteStyle = style.toLowerCase();
   let notesContent = '';
   

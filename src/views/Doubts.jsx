@@ -105,10 +105,16 @@ export default function Doubts({ user, activeDocId }) {
 
       const result = await apiSolveDoubt(user.id, selectedDocText, userMessage.text);
       
+      const providerLabel = result.usedProvider === 'gemini' ? '✨ Gemini' 
+        : result.usedProvider === 'groq' ? '⚡ Groq' 
+        : result.usedProvider === 'mock' ? '🔧 Mock' 
+        : '';
+
       const aiMessage = {
         id: result.id || crypto.randomUUID(),
         sender: 'ai',
         text: result.answer,
+        provider: providerLabel,
         timestamp: result.created_at || new Date().toISOString()
       };
       
@@ -316,6 +322,33 @@ export default function Doubts({ user, activeDocId }) {
                     />
                   )}
                   <span style={styles.timeString}>
+                    {msg.provider && (
+                      <span style={{
+                        display: 'inline-block',
+                        fontSize: '0.65rem',
+                        fontWeight: '600',
+                        padding: '1px 7px',
+                        borderRadius: '8px',
+                        marginRight: '6px',
+                        background: msg.provider.includes('Gemini') 
+                          ? 'rgba(59, 130, 246, 0.15)' 
+                          : msg.provider.includes('Groq') 
+                            ? 'rgba(249, 115, 22, 0.15)' 
+                            : 'rgba(255,255,255,0.05)',
+                        color: msg.provider.includes('Gemini') 
+                          ? '#60a5fa' 
+                          : msg.provider.includes('Groq') 
+                            ? '#fb923c' 
+                            : 'hsl(var(--text-dark))',
+                        border: msg.provider.includes('Gemini')
+                          ? '1px solid rgba(59, 130, 246, 0.25)'
+                          : msg.provider.includes('Groq')
+                            ? '1px solid rgba(249, 115, 22, 0.25)'
+                            : '1px solid rgba(255,255,255,0.08)',
+                      }}>
+                        {msg.provider}
+                      </span>
+                    )}
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>

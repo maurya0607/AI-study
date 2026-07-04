@@ -18,7 +18,7 @@ export async function generateText(prompt, options = {}) {
   }
 
   // Handle case where options is a string (for backward compatibility, e.g. analyzeWeakness)
-  let provider = 'gemini';
+  let provider = 'groq';
   let modelName = null;
 
   if (typeof options === 'string') {
@@ -28,29 +28,39 @@ export async function generateText(prompt, options = {}) {
     }
     modelName = options;
   } else if (options && typeof options === 'object') {
-    provider = options.provider || 'gemini';
+    provider = options.provider || 'groq';
     modelName = options.model;
   }
 
   provider = provider.toLowerCase();
 
   // Fallback checks
-  if (provider === 'gemini' && !isGeminiConfigured) {
-    console.log('⚠️ Gemini is requested but not configured. Falling back to Groq.');
-    provider = 'groq';
-  } else if (provider === 'groq' && !isGroqConfigured) {
+  if (provider === 'groq' && !isGroqConfigured) {
     console.log('⚠️ Groq is requested but not configured. Falling back to Gemini.');
     provider = 'gemini';
+  } else if (provider === 'gemini' && !isGeminiConfigured) {
+    console.log('⚠️ Gemini is requested but not configured. Falling back to Groq.');
+    provider = 'groq';
   }
 
   if (provider === 'gemini') {
-    const geminiModel = getGeminiModel(modelName || 'gemini-1.5-flash');
-    if (!geminiModel) {
-      throw new Error('Gemini client is not initialized.');
+    try {
+      const geminiModel = getGeminiModel(modelName || 'gemini-2.5-flash');
+      if (!geminiModel) {
+        throw new Error('Gemini client is not initialized.');
+      }
+      const result = await geminiModel.generateContent(prompt);
+      const response = await result.response;
+      return response.text() || '';
+    } catch (geminiError) {
+      console.error('❌ Gemini API call failed:', geminiError.message);
+      // Auto-fallback to Groq if available
+      if (isGroqConfigured) {
+        console.log('🔄 Auto-falling back to Groq after Gemini failure...');
+        return await generateGroqText(prompt, modelName || 'llama-3.3-70b-versatile');
+      }
+      throw geminiError;
     }
-    const result = await geminiModel.generateContent(prompt);
-    const response = await result.response;
-    return response.text() || '';
   } else {
     // Groq
     return await generateGroqText(prompt, modelName || 'llama-3.3-70b-versatile');

@@ -5,7 +5,7 @@ import { generateText, isAIConfigured } from '../utils/aiClient.js';
  * @param {Array} quizAttempts - Array of past quiz attempts with score and total.
  * @returns {Promise<Object>} The analysis report with weakAreas, strongAreas, and recommendedActions.
  */
-export async function analyzeWeakness(quizAttempts, provider = 'gemini') {
+export async function analyzeWeakness(quizAttempts, provider = 'groq') {
   if (!quizAttempts || quizAttempts.length === 0) {
     return {
       weakAreas: ["Not enough data"],

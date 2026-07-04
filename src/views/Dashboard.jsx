@@ -219,20 +219,53 @@ export default function Dashboard({ user, setView, setActiveDocId }) {
             return (
               <div key={badge.id} style={{
                 ...styles.badgeCard,
-                opacity: isEarned ? 1 : 0.4,
-                filter: isEarned ? 'none' : 'grayscale(100%)'
+                border: isEarned
+                  ? '1px solid rgba(167, 139, 250, 0.45)'
+                  : '1px solid rgba(255,255,255,0.07)',
+                background: isEarned
+                  ? 'rgba(124, 58, 237, 0.12)'
+                  : 'rgba(255,255,255,0.03)',
+                boxShadow: isEarned
+                  ? '0 0 14px rgba(124, 58, 237, 0.18)'
+                  : 'none',
               }}>
-                <div style={styles.badgeIcon}>{badge.icon}</div>
-                <div>
-                  <div style={styles.badgeName}>{badge.name}</div>
-                  <div style={styles.badgeDesc}>
-                    {badge.description}
-                    {!isEarned && (
-                      <span style={{ opacity: 0.8, display: 'block', fontSize: '0.7rem', color: '#a78bfa', marginTop: '3px' }}>
-                        Progress: {getBadgeProgress(badge)}
-                      </span>
+                <div style={{
+                  ...styles.badgeIcon,
+                  opacity: isEarned ? 1 : 0.35,
+                  filter: isEarned ? 'none' : 'grayscale(80%)',
+                }}>
+                  {badge.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    ...styles.badgeName,
+                    color: isEarned ? 'hsl(var(--text-main))' : 'hsl(var(--text-muted))',
+                  }}>
+                    {badge.name}
+                    {isEarned && (
+                      <span style={{ marginLeft: '6px', fontSize: '0.7rem', color: '#a78bfa', fontWeight: '500' }}>✓ Earned</span>
                     )}
                   </div>
+                  <div style={styles.badgeDesc}>{badge.description}</div>
+                  {!isEarned && (
+                    <div style={{ marginTop: '6px' }}>
+                      <div style={{ fontSize: '0.68rem', color: '#a78bfa', marginBottom: '3px' }}>
+                        Progress: {getBadgeProgress(badge)}
+                      </div>
+                      <div style={{ height: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%',
+                          borderRadius: '2px',
+                          background: 'linear-gradient(90deg, #7c3aed, #a78bfa)',
+                          width: (() => {
+                            const [cur, max] = getBadgeProgress(badge).split('/').map(Number);
+                            return `${Math.min(100, Math.round((cur / max) * 100))}%`;
+                          })(),
+                          transition: 'width 0.5s ease',
+                        }} />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
